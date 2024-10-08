@@ -1,0 +1,8 @@
+numpy
+networkx
+matplotlib
+pandas
+seaborn
+plotly
+yfiles_jupyter_graphs
+streamlit

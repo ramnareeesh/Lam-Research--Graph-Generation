@@ -5,4 +5,5 @@ pandas
 seaborn
 plotly
 yfiles_jupyter_graphs
+psutil
 streamlit

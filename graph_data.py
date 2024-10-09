@@ -162,8 +162,8 @@ def query_subgraph(
             yaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
         ),
     )
-    fig.show()
-
+    # fig.show()
+    return fig
 
 class GraphData:
     def __init__(self):
@@ -300,8 +300,8 @@ class GraphData:
             ),
         )
 
-        fig.show()
-
+        # fig.show()
+        return fig
     def add_business_group(self, business_group: BusinessGroup):
         self.business_groups[business_group.id] = business_group
 
@@ -358,6 +358,19 @@ class GraphData:
                 importance=module.importance,
             )
 
+        for part in self.parts.values():
+            G.add_node(
+                part.id,
+                id=part.id,
+                name=part.name,
+                type=part.part_type,
+                module_id=part.module_id,
+                inventory=part.inventory,
+                importance=part.importance,
+                production_cost=part.production_cost,
+                level=part.level,
+            )
+
         for offering in self.product_offerings.values():
             G.add_edge(offering.id, offering.product_family_id)
 
@@ -367,6 +380,10 @@ class GraphData:
         for module in self.modules.values():
             for offering in module.product_offering_id:
                 G.add_edge(module.id, offering)
+
+        for part in self.parts.values():
+            for module in part.module_id:
+                G.add_edge(part.id, module)
 
         return G
 
@@ -441,3 +458,64 @@ class GraphData:
 
         edges_df = pd.concat([pd.DataFrame([edge]) for edge in edges_list], ignore_index=True)
         edges_df.to_csv("data/edges.csv", index=False)
+
+
+def create_min_graph(graph_data_obj: GraphData):
+    business_group = BusinessGroup("BG1", "Etching", 1000000)
+    graph_data_obj.add_business_group(business_group)
+    product_family_1 = ProductFamily("PF1", "Kyo", "BG1")
+    graph_data_obj.add_product_family(product_family_1)
+
+    product_family_2 = ProductFamily("PF2", "Coronus", "BG1")
+    graph_data_obj.add_product_family(product_family_2)
+
+    product_family_3 = ProductFamily("PF3", "Flex", "BG1")
+    graph_data_obj.add_product_family(product_family_3)
+
+    product_family_4 = ProductFamily("PF4", "Versys Metal", "BG1")
+    graph_data_obj.add_product_family(product_family_4)
+
+    product_offerings_data = [
+        {"id": "PO1", "name": "Versys Kyo", "product_family_id": "PF1"},
+        {"id": "PO2", "name": "Versys Kyo C Series", "product_family_id": "PF1"},
+        {"id": "PO3", "name": "Kyo C Series", "product_family_id": "PF1"},
+        {"id": "PO4", "name": "Kyo E Series", "product_family_id": "PF1"},
+        {"id": "PO5", "name": "Kyo F Series", "product_family_id": "PF1"},
+        {"id": "PO6", "name": "Kyo G Series", "product_family_id": "PF1"},
+
+        {"id": "PO7", "name": "Coronus", "product_family_id": "PF2"},
+        {"id": "PO8", "name": "Coronus HP", "product_family_id": "PF2"},
+        {"id": "PO9", "name": "Coronus DX", "product_family_id": "PF2"},
+
+        {"id": "PO10", "name": "Exelan Flex", "product_family_id": "PF3"},
+        {"id": "PO11", "name": "Exelan Flex45", "product_family_id": "PF3"},
+        {"id": "PO12", "name": "Flex D Series", "product_family_id": "PF3"},
+        {"id": "PO13", "name": "Flex E Series", "product_family_id": "PF3"},
+        {"id": "PO14", "name": "Flex F Series", "product_family_id": "PF3"},
+        {"id": "PO15", "name": "Flex G Series", "product_family_id": "PF3"},
+        {"id": "PO16", "name": "Flex H Series", "product_family_id": "PF3"},
+
+        {"id": "PO17", "name": "Versys Metal", "product_family_id": "PF4"},
+        {"id": "PO18", "name": "Versys Metal45", "product_family_id": "PF4"},
+        {"id": "PO19", "name": "Versys Metal L", "product_family_id": "PF4"},
+        {"id": "PO20", "name": "Versys Metal M", "product_family_id": "PF4"},
+        {"id": "PO21", "name": "Versys Metal N", "product_family_id": "PF4"}
+    ]
+
+    for i in product_offerings_data:
+        graph_data_obj.add_product_offering(ProductOffering(i["id"], i["name"], i["product_family_id"]))
+
+    return graph_data_obj
+
+def shortest_path(G:nx.DiGraph, source:str, target:str):
+    path = nx.shortest_path(G.to_undirected(), source=source, target=target)
+    str_path = ""
+    if path:
+        for node in range(len(path)):
+            if node == len(path) - 1:
+                str_path += path[node]
+            else:
+                str_path += path[node] + " -> "
+    else:
+        str_path = "No path exists between the source and target nodes."
+    return str_path

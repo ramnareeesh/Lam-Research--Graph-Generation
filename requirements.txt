@@ -6,4 +6,5 @@ seaborn
 plotly
 yfiles_jupyter_graphs
 psutil
+scipy
 streamlit

@@ -18,7 +18,7 @@ import random
 def query_subgraph(
     G_d: nx.Graph,
     node_id: str,
-    levels: int = 2,
+    levels: int = 4,
     target_node_id: str = None,
     highlight_shortest_path: bool = False,
 ):
@@ -37,7 +37,7 @@ def query_subgraph(
         current_level_nodes = next_level_nodes
 
     subgraph = G.subgraph(subgraph_nodes)
-    # print("Subgraph nodes:", subgraph_nodes)
+    print("Subgraph nodes:", subgraph_nodes)
     pos = nx.spring_layout(subgraph, k=0.5, iterations=50)
 
     edge_x, edge_y = [], []
@@ -104,6 +104,7 @@ def query_subgraph(
         try:
             shortest_path = nx.shortest_path(G, source=node_id, target=target_node_id)
             path_edges = list(zip(shortest_path, shortest_path[1:]))
+            print(path_edges)
             path_edge_x, path_edge_y = [], []
             for edge in path_edges:
                 x0, y0 = pos[edge[0]]

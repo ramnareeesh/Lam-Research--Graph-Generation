@@ -79,4 +79,13 @@ if 'graph' in st.session_state:
     # st.write(st.session_state['graph'].nodes[target])
 
     if source and target:
-        st.metric(label="Shortest Path:", value=shortest_path(st.session_state['graph'], source, target))
+        path = shortest_path(st.session_state['graph'], source, target)
+        st.write("Shortest Path:")
+        st.write(path)
+        if st.button("Visualize Shortest Path"):
+            st.write("_Visualization of shortest path_")
+            time_start = time.time()
+            st.plotly_chart(query_subgraph(st.session_state['graph'], source, levels=len(path), target_node_id=target, highlight_shortest_path=True))
+            time_end = time.time()
+            st.metric("Time taken to visualize shortest path", f"{time_end - time_start:.4f} seconds")
+            st.write("---", divider='rainbow')
